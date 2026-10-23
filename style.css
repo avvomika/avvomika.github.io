@@ -179,3 +179,8 @@ dialog::-webkit-scrollbar-thumb, nav::-webkit-scrollbar-thumb {
 }
 html::-webkit-scrollbar-thumb:hover, .mods-scroll::-webkit-scrollbar-thumb:hover,
 dialog::-webkit-scrollbar-thumb:hover, nav::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); }
+
+
+/* Public polish hotfix: subtler homepage plumbob */
+.hero::after{width:150px!important;height:220px!important;right:5.5%!important;top:18%!important;opacity:.10!important;filter:drop-shadow(0 0 20px rgba(179,160,216,.14));}
+@media(max-width:700px){.hero::after{width:88px!important;height:128px!important;right:6px!important;top:18px!important;opacity:.08!important;}}

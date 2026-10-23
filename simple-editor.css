@@ -73,3 +73,9 @@ body.public-view [data-photo-add],body.public-view [data-edit-trees]{display:non
 .custom-dialog select{display:block;width:100%;font:inherit;border-radius:8px;padding:11px 12px;color:var(--text);background:var(--panel2);border:1px solid var(--line)}
 .custom-dialog select:focus{outline:2px solid var(--accent);outline-offset:1px}
 @media(max-width:700px){.family-tree-compact{padding:12px!important}.family-tree-links{align-items:stretch}.family-tree-links .tree-link{white-space:normal}}
+
+
+/* Public polish hotfix: hide all edit controls in public view */
+body.public-view .edit-current,
+body.public-view [data-portal-edit],
+body.public-view [data-sims4-edit]{display:none!important;}
