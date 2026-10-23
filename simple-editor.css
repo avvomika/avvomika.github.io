@@ -1,0 +1,75 @@
+/* Sims Stories: понятный редактор без технических категорий */
+.create-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:14px 0 32px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.create-main{background:var(--accent,var(--gold2));border:1px solid var(--accent,var(--gold2));color:var(--bg);font-family:'Comfortaa',sans-serif;font-size:15px;font-weight:700;border-radius:10px;padding:13px 18px;transition:transform .15s,filter .15s}
+.create-main:hover{filter:brightness(1.13);transform:translateY(-1px)}
+.create-hint{font-family:'Comfortaa',sans-serif;color:var(--muted);font-size:13px;line-height:1.5}
+.content-stream{display:grid;gap:22px;margin:22px 0 30px}
+.content-stream .content-block,.content-stream .subsection{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:23px 26px;margin:0;box-shadow:0 3px 16px var(--shadow)}
+.content-stream h2{font-size:clamp(21px,2.3vw,29px);margin:0 0 12px}
+.content-stream .prose{margin:5px 0 18px;white-space:pre-line}
+.content-stream .block-actions,.content-stream .subsection-actions{border-top:1px solid var(--line);padding-top:9px;display:flex;gap:10px;flex-wrap:wrap}
+.article-links{margin:42px 0 30px}.article-links h2{margin-bottom:20px}
+.entry-grid{margin:20px 0 30px}.entry-grid .entry-card{cursor:default;text-align:left}
+.entry-grid .entry-card p{white-space:pre-line}.entry-controls{border-top:1px solid var(--line);padding-top:10px}
+.create-dialog{width:min(620px,94vw)}.create-dialog-top h2{font-size:32px}.create-dialog-top p{margin:8px 0 15px}
+.create-options{display:grid;gap:10px;margin:19px 0}.create-options button{display:flex;align-items:center;width:100%;gap:16px;background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:18px;border-radius:12px;text-align:left}.create-options button:hover,.create-options button:focus-visible{border-color:var(--gold2);background:var(--panel)}.create-options strong,.create-options small{display:block}.create-options strong{font-family:'Balsamiq Sans',sans-serif;font-size:20px}.create-options small{color:var(--muted);font-size:13px;line-height:1.5;margin-top:3px}.choice-icon{font-size:24px}.choice-arrow{margin-left:auto;color:var(--gold2)}
+@media(max-width:650px){.create-row{align-items:flex-start;flex-direction:column}.content-stream .content-block,.content-stream .subsection{padding:18px}}
+
+/* Public mode: publication on GitHub Pages is read-only. To edit a local draft use ?edit=1 and export JSON. */
+body.public-view #editor,
+body.public-view [data-home-edit],
+body.public-view [data-history-edit],
+body.public-view [data-edit],
+body.public-view [data-add],
+body.public-view [data-entry],
+body.public-view [data-delete-entry],
+body.public-view [data-mod-add],
+body.public-view [data-mod-edit],
+body.public-view [data-mod-delete],
+body.public-view [data-create],
+body.public-view [data-block-add],
+body.public-view [data-block-edit],
+body.public-view [data-block-delete],
+body.public-view [data-block-move],
+body.public-view [data-new-page],
+body.public-view [data-article-edit],
+body.public-view [data-article-delete],
+body.public-view [data-cities-edit],
+body.public-view [data-edit-city],
+body.public-view [data-add-subsection],
+body.public-view [data-edit-subsection],
+body.public-view [data-delete-subsection],
+body.public-view [data-add-section],
+body.public-view [data-remove-photo]{display:none!important}
+
+/* Image and hyperlink editor */
+.form-help{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 14px}
+.form-help code{white-space:normal;overflow-wrap:anywhere;color:var(--text)}
+.article-image{margin:17px 0 22px}.article-image .content-image{display:block;max-width:100%;height:auto;border-radius:12px}.article-image figcaption{color:var(--muted);font-size:13px;margin-top:8px;text-align:center}
+.photo-preview-inner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0}.photo-preview-inner img{width:150px;max-height:110px;object-fit:contain;border:1px solid var(--line);border-radius:8px}.photo-preview-inner button{padding:8px 12px}
+.block-photo-dialog{width:min(700px,94vw)}
+
+/* Obvious photo action and two named tree links */
+.create-secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text);font-family:'Comfortaa',sans-serif;font-size:14px;font-weight:700;border-radius:10px;padding:13px 18px;cursor:pointer}
+.create-secondary:hover{border-color:var(--accent,var(--gold2));filter:brightness(1.12)}
+.family-tree-section{margin:34px 0}.family-tree-section .section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.family-tree-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+.family-tree-links .tree-link{display:inline-flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:13px 16px;text-decoration:none;font-weight:700}
+.family-tree-links .tree-link:hover{border-color:var(--accent,var(--gold2))}.family-trees-dialog fieldset{border:1px solid var(--line);border-radius:10px;margin:12px 0;padding:16px}.family-trees-dialog legend{font-weight:700;padding:0 8px}
+body.public-view [data-photo-add],body.public-view [data-edit-trees]{display:none!important}
+
+/* Два генеалогических древа на каждой семейной странице и в карточках. */
+.family-tree-section.family-tree-compact{margin:18px 0 22px;padding:16px;border:1px solid var(--line);border-radius:13px;background:var(--panel2)}
+.family-tree-compact .section-head h2{font-size:clamp(16px,1.35vw,20px);margin:0}
+.family-tree-compact .family-tree-links{margin-top:12px;gap:8px}
+.family-tree-compact .tree-link{padding:9px 12px;font-size:13px;font-weight:600;max-width:100%;overflow-wrap:anywhere}
+.tree-link-empty{cursor:pointer;font-family:inherit;text-align:left;border-style:dashed!important;background:transparent!important;color:var(--muted)!important}
+.tree-link-empty:hover{border-color:var(--accent)!important;color:var(--text)!important}
+.entry-card .family-tree-section{width:100%}
+.entry-card .family-tree-compact .section-head{gap:8px}
+.entry-card .family-tree-compact .section-head .edit-current{font-size:12px}
+.residence-label{font-size:14px!important;line-height:1.6!important;margin:10px 0!important;padding:8px 10px;background:var(--panel2);border-radius:8px}
+.residence-label span{color:var(--muted)}
+.residence-tools{margin:14px 0 20px}
+.custom-dialog select{display:block;width:100%;font:inherit;border-radius:8px;padding:11px 12px;color:var(--text);background:var(--panel2);border:1px solid var(--line)}
+.custom-dialog select:focus{outline:2px solid var(--accent);outline-offset:1px}
+@media(max-width:700px){.family-tree-compact{padding:12px!important}.family-tree-links{align-items:stretch}.family-tree-links .tree-link{white-space:normal}}

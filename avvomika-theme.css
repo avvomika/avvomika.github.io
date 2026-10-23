@@ -1,0 +1,252 @@
+/* Sims Stories · Avvomika / Emerald Noir
+   Palette: graphite • emerald • lavender • silver. No gold or beige.
+   This file intentionally loads AFTER style.css so the existing editor and content
+   system stay untouched. */
+:root, body:not(.light) {
+  color-scheme: dark;
+  --bg:#131A20;
+  --panel:#1D2730;
+  --panel2:#27353E;
+  --line:#3C505C;
+  --text:#F3F5F8;
+  --muted:#BEC8D2;
+  --gold:#53CAB6;     /* legacy CSS accent variable = emerald */
+  --gold2:#C0AAF0;    /* secondary accent = lavender */
+  --shadow:#030C1690;
+  --scroll-track:#1D2730;
+  --scroll-thumb:#566D7A;
+  --scroll-hover:#A999DC;
+  --accent:#53CAB6;
+  --accent-alt:#C0AAF0;
+  --soft-accent:#334D53;
+}
+body.light {
+  color-scheme: light;
+  --bg:#E7ECF0;
+  --panel:#D6E0E5;
+  --panel2:#F4F6F8;
+  --line:#BBCBD3;
+  --text:#19262E;
+  --muted:#4C606D;
+  --gold:#147D72;
+  --gold2:#66519C;
+  --shadow:#3852651F;
+  --scroll-track:#D6E0E5;
+  --scroll-thumb:#9AADB9;
+  --scroll-hover:#7564AB;
+  --accent:#147D72;
+  --accent-alt:#66519C;
+  --soft-accent:#DCEBE8;
+}
+html { scroll-behavior:smooth; }
+body {
+  background:var(--bg);
+  background-image: radial-gradient(ellipse at 95% 2%, rgba(111,89,169,.14),transparent 36%),
+                    radial-gradient(ellipse at 10% 92%, rgba(31,139,124,.07), transparent 42%);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:'Comfortaa','Trebuchet MS',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+body.light {
+  background-image:radial-gradient(ellipse at 85% 2%,rgba(141,115,197,.10),transparent 42%),
+                   radial-gradient(ellipse at 15% 90%,rgba(46,134,124,.07),transparent 45%);
+}
+button,input,textarea,select {font-family:'Comfortaa','Trebuchet MS',sans-serif;}
+h1,h2,h3,.brand strong,.top-right,dialog h2,.sidebar-bottom small {
+  font-family:'Comfortaa','Trebuchet MS',sans-serif;
+}
+a { color:var(--accent-alt); }
+a:hover { color:var(--accent); }
+::selection{background:rgba(91,199,179,.38);color:var(--text)}
+.shell{min-height:100vh}
+.sidebar {
+  background:var(--panel);
+  border-right:1px solid var(--line);
+  box-shadow:5px 0 35px rgba(4,15,25,.12);
+  scrollbar-color:var(--scroll-thumb) var(--scroll-track);
+}
+.brand{border-bottom:1px solid var(--line);margin-bottom:13px;padding-bottom:25px}
+.brand strong{color:var(--text);font-size:23px;letter-spacing:.9px}
+.brand small{color:var(--muted);letter-spacing:1px}
+.diamond img {filter:brightness(0) saturate(100%) invert(70%) sepia(45%) saturate(430%) hue-rotate(114deg) brightness(100%)!important;opacity:.96!important;}
+body.light .diamond img{filter:brightness(0) saturate(100%) invert(35%) sepia(31%) saturate(1200%) hue-rotate(125deg)!important;opacity:.95!important}
+.side-search {
+  background:rgba(7,16,27,.20)!important;
+  border:1px solid var(--line);
+  border-radius:9px;
+  transition:border-color .2s,box-shadow .2s;
+}
+body.light .side-search{background:rgba(255,255,255,.48)!important}
+.side-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(73,193,174,.12)}
+.side-search span{color:var(--accent)}
+.side-search input,.side-search input::placeholder{color:var(--muted)}
+.side-search input:focus{color:var(--text)}
+.nav-group-toggle{
+  font-weight:700!important;
+  color:var(--accent-alt);
+  border-radius:8px;
+  letter-spacing:1.2px;
+}
+.nav-group-toggle:hover{color:var(--text);background:var(--panel2)}
+.nav-chevron{color:var(--accent)}
+.nav-item{color:var(--text);font-weight:700!important;border-radius:9px;line-height:1.45}
+.nav-item .icon{color:var(--accent-alt)}
+.nav-item:hover,.nav-item.active{background:var(--soft-accent);color:var(--text)}
+.nav-item:hover .icon,.nav-item.active .icon{color:var(--accent)}
+body.light .nav-item:hover,body.light .nav-item.active{background:#E5EFF0}
+.sidebar-bottom{border-top:1px solid var(--line);margin-top:auto}
+.sidebar-bottom .ghost,.ghost{
+  background:transparent;color:var(--text);border:1px solid var(--line);
+  border-radius:8px;transition:background .2s,border-color .2s;
+}
+.ghost:hover{background:var(--panel2);border-color:var(--accent)}
+.sidebar-bottom small{color:var(--accent-alt);font-weight:500}
+header{border-bottom:1px solid var(--line)}
+.eyebrow,.kicker{color:var(--accent);letter-spacing:2.2px;font-weight:700}
+.top-right{color:var(--accent-alt);font-style:normal;font-weight:600}
+.hero {
+  isolation:isolate;
+  padding:82px 0 76px;
+  border-bottom:1px solid var(--line);
+  background:radial-gradient(ellipse at 87% 35%,rgba(145,113,210,.10),transparent 44%);
+}
+.hero::after {
+  background-color:var(--accent-alt)!important;
+  opacity:.29!important;
+  right:5%;top:12%;width:195px;height:293px;
+  filter:drop-shadow(0 0 15px rgba(151,128,217,.35));
+}
+body.light .hero::after{opacity:.22!important}
+.hero h1{position:relative;z-index:1;max-width:850px;font-weight:700;letter-spacing:-1.6px}
+h1 em{color:var(--accent-alt)!important; font-style:normal}
+.hero .lead{position:relative;z-index:1;max-width:720px}
+.lead,.prose,.card p,dialog p{color:var(--text)}
+.cta {
+  color:#102027!important;
+  background:linear-gradient(110deg,#5DCEBA,#95DCD3);
+  border:1px solid rgba(95,206,188,.4);
+  border-radius:10px;
+  box-shadow:0 4px 22px rgba(47,170,153,.18);
+  transition:transform .2s,box-shadow .2s;
+}
+.cta:hover{transform:translateY(-2px);box-shadow:0 7px 26px rgba(47,170,153,.30)}
+body.light .cta{background:linear-gradient(110deg,#168276,#3EA89A);color:#fff!important}
+.section h2,.page h2,.collection h2 { color:var(--text); }
+.section-head a,.card .arrow,.links a {color:var(--accent-alt)}
+.card {
+  background:linear-gradient(146deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);
+  box-shadow:0 4px 17px var(--shadow);
+  border-radius:12px;
+  color:var(--text);
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.card:hover{border-color:var(--accent);box-shadow:0 7px 26px rgba(39,175,159,.13);transform:translateY(-3px)}
+.card-icon{color:var(--accent)!important}
+.card h3{color:var(--text);font-size:23px}
+.card p{color:var(--muted);line-height:1.65}
+body.light .card{background:linear-gradient(140deg,#F6F8FA,#E8EEF2)}
+.card .arrow{margin-top:auto;color:var(--accent-alt)}
+.page .prose,.prose{color:var(--text)}
+.info-box {
+  background:var(--panel2)!important;
+  border-left:3px solid var(--accent);
+  border-radius:0 10px 10px 0;
+  color:var(--text);
+}
+.tag,.city-link{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:20px;
+  color:var(--text);
+}
+.tag:hover,.city-link:hover{color:var(--accent);border-color:var(--accent);background:var(--panel2)}
+.links a{border-color:var(--line);border-radius:9px;background:var(--panel2)}
+.links a:hover{border-color:var(--accent)}
+.edit-current {
+  background:transparent;color:var(--accent-alt);
+  border-color:var(--line);border-radius:8px;
+  transition:background .2s,color .2s,border-color .2s;
+}
+.edit-current:hover{background:var(--panel2);color:var(--accent);border-color:var(--accent)}
+.subsection {background:var(--panel2);border-color:var(--line);border-radius:10px}
+.content-block{border-top-color:var(--line)}
+.city-gallery figure{background:var(--panel2);border-color:var(--line)}
+.city-page .back-link,.hashtag,.content-block a{color:var(--accent-alt)}
+.city-page .back-link:hover,.hashtag:hover,.content-block a:hover{color:var(--accent)}
+.mods-table th{background:var(--panel2)!important;color:var(--text)}
+.mods-table td{background:transparent!important;color:var(--text)}
+.mods-table th,.mods-table td{border-color:var(--line)}
+.mods-scroll{border-radius:9px;border:1px solid var(--line)}
+footer{color:var(--muted);border-top:1px solid var(--line)}
+dialog {
+  background:var(--panel2)!important;
+  border:1px solid var(--line);
+  color:var(--text);
+  box-shadow:0 22px 80px #0008;
+}
+dialog label{color:var(--accent-alt)}
+dialog label input,dialog textarea {background:var(--panel)!important;border-color:var(--line);color:var(--text)}
+dialog label input:focus,dialog textarea:focus{border-color:var(--accent);outline:2px solid rgba(83,202,182,.14)}
+menu button,.editor-actions button,.upload {
+  background:var(--accent);
+  color:#102027!important;
+  border-radius:8px;
+}
+.secondary{background:var(--panel)!important;color:var(--text)!important;border:1px solid var(--line)}
+body.light menu button,body.light .editor-actions button,body.light .upload {color:white!important}
+/* Custom scrollbars are explicitly styled in both themes. */
+.sidebar::-webkit-scrollbar{width:9px}
+.sidebar::-webkit-scrollbar-track{background:var(--scroll-track)}
+.sidebar::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border:2px solid var(--scroll-track);border-radius:20px}
+.sidebar::-webkit-scrollbar-thumb:hover{background:var(--scroll-hover)}
+html,.sidebar,nav,.mods-scroll,dialog{scrollbar-color:var(--scroll-thumb) var(--scroll-track);scrollbar-width:thin}
+html::-webkit-scrollbar,nav::-webkit-scrollbar,dialog::-webkit-scrollbar,.mods-scroll::-webkit-scrollbar {width:9px;height:9px}
+html::-webkit-scrollbar-track,nav::-webkit-scrollbar-track,dialog::-webkit-scrollbar-track,.mods-scroll::-webkit-scrollbar-track{background:var(--scroll-track)}
+html::-webkit-scrollbar-thumb,nav::-webkit-scrollbar-thumb,dialog::-webkit-scrollbar-thumb,.mods-scroll::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:20px}
+@media(max-width:700px){.hero::after{width:110px;height:165px;right:0;top:7%;opacity:.12!important}.hero h1{max-width:100%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+
+/* Самостоятельная страница «Об авторе» под основными разделами */
+.nav-standalone{border-top:1px solid var(--line,rgba(150,170,180,.22));margin-top:12px;padding-top:12px}
+
+/* Navigation hierarchy: Avvomika > game > Sims 4 category > page */
+.game-toggle{margin-top:14px;border:1px solid var(--line)!important;border-radius:12px!important;background:var(--panel2)!important;padding:14px 12px!important;color:var(--text)!important;font-size:16px!important;letter-spacing:.15px!important;text-transform:none!important}
+.game-toggle:hover{border-color:var(--accent)!important}
+.game-group-name{display:flex;gap:11px;align-items:center;font-weight:700}
+.game-group-icon{font-size:25px;line-height:1;color:var(--accent);width:27px;text-align:center}
+.nav-game-items{display:grid;gap:3px;padding:8px 0 10px 6px}
+.nav-game-items[hidden],.nav-subgroup-items[hidden]{display:none!important}
+.nav-subgroup{padding:9px 11px!important;margin-top:3px!important;color:var(--accent-alt)!important;font-size:14px!important;font-weight:700!important;letter-spacing:.2px!important;text-transform:none!important}
+.nav-subgroup-items{display:grid;gap:2px;padding-left:10px;border-left:1px solid var(--line);margin-left:11px}
+.nav-subgroup-items .nav-item{font-size:14px!important;padding:10px 9px!important;white-space:normal}
+.nav-subgroup-items .nav-item .icon{color:var(--accent);font-size:21px}
+.sims4-overview .page-top{align-items:center}.games-grid .card{min-height:230px}
+@media(max-width:650px){nav{display:grid!important;overflow:visible!important;max-height:360px;overflow-y:auto!important;gap:4px}.nav-group-toggle{min-width:0}.nav-group-items{display:grid}.nav-item{width:100%;white-space:normal}.sidebar{max-height:none}.games-grid{grid-template-columns:1fr}}
+
+/* Династические дома Двадцатки — Emerald Noir */
+.dynastic-section{margin:38px 0 46px}
+.dynastic-intro{padding:0 0 11px;border-bottom:1px solid var(--line)}
+.dynastic-intro h2{font-size:clamp(25px,3vw,34px);margin:0 0 10px}
+.dynastic-intro p{color:var(--muted);font-size:15px;line-height:1.8;margin:0 0 18px}
+.dynastic-houses{display:grid;gap:18px;margin-top:24px}
+.dynastic-house{border:1px solid var(--line);border-radius:16px;padding:clamp(20px,2.5vw,30px);background:linear-gradient(125deg,var(--panel2),var(--panel));box-shadow:0 7px 25px var(--shadow);position:relative;overflow:hidden}
+.dynastic-house:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent),var(--accent-alt))}
+.dynastic-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.page .dynastic-head h2{margin:0;font-size:clamp(22px,2.4vw,30px);line-height:1.3}
+.dynastic-description{font-size:16px;line-height:1.9;color:var(--text);max-width:900px;white-space:pre-line}
+.dynastic-members{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.dynastic-family{border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--text);font-family:'Comfortaa',sans-serif;font-size:14px;font-weight:700;padding:11px 15px;cursor:pointer;display:inline-flex;align-items:center;gap:9px}
+.dynastic-family:hover{border-color:var(--accent);color:var(--accent)}
+.dynastic-family-symbol{color:var(--accent)}
+.dynastic-empty{display:inline-block;margin-top:22px;font-size:13px;color:var(--accent-alt);border:1px dashed var(--line);padding:10px 14px;border-radius:9px}
+.dynastic-remaining{margin-top:44px}
+.dynastic-remaining h2{margin-bottom:24px}
+body.public-view [data-edit-house]{display:none!important}
+@media(max-width:680px){.dynastic-house{padding:21px 18px 23px}.dynastic-head{flex-direction:column;gap:10px}.dynastic-family{width:100%;justify-content:space-between}}
+
+/* Единая кнопка экспорта содержимого энциклопедии */
+#exportAll.export-all{font-family:'Comfortaa',sans-serif;font-size:14px;font-weight:700;color:var(--text);border:1px solid var(--accent);background:linear-gradient(115deg,var(--panel2),var(--panel));box-shadow:inset 3px 0 var(--accent);cursor:pointer;text-align:center;transition:background .15s,border-color .15s}
+#exportAll.export-all:hover{border-color:var(--accent-alt);background:var(--panel2)}
+body.public-view #exportAll{display:none!important}

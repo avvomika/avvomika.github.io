@@ -1,0 +1,24 @@
+
+/* Sims Stories — типографическая пара Comfortaa + Balsamiq Sans
+   Comfortaa: длинные тексты, навигация и формы
+   Balsamiq Sans: заголовки и названия карточек
+   Fonts loaded via Google Fonts, with fallbacks if offline. */
+:root { --font-reading:'Comfortaa','Trebuchet MS',sans-serif; --font-heading:'Balsamiq Sans','Comfortaa','Trebuchet MS',sans-serif; }
+body,button,input,textarea,select, .lead,.prose,.card p,.nav-item,.nav-group-toggle,.nav-label,
+.side-search,.info-box,.content-block,.tag,.hashtag,.mods-table,footer,dialog p,
+.hero .lead,.sidebar-bottom small { font-family:var(--font-reading)!important; }
+h1,h2,h3,.hero h1,.brand strong,.card h3,.section h2,.page h2,.collection h2,
+dialog h2,.section-head h2,.subsection h3,.page-title,.city-page h1 {
+  font-family:var(--font-heading)!important;
+  font-style:normal;
+  letter-spacing:0;
+}
+h1,.hero h1 { font-weight:700!important; line-height:1.10; }
+.page h1 { font-weight:700!important; line-height:1.14; }
+.card h3 { font-weight:700!important; line-height:1.25; }
+/* These captions deliberately use Comfortaa for clean small text. */
+.eyebrow,.kicker,.top-right,.brand small,.nav-item,.nav-group-toggle,
+button,input,textarea,select {font-family:var(--font-reading)!important;}
+/* Elegant contrast without reducing readability. */
+.brand strong {font-size:25px;letter-spacing:.4px}
+.section h2,.page h2 {letter-spacing:.1px}
