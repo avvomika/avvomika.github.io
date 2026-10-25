@@ -113,3 +113,35 @@ body.public-view [data-sims4-edit]{display:none!important}
 .dynasty-story-page .family-tree-links .tree-link{margin:0!important;flex:0 1 auto}
 .dynasty-story-page .content-stream .content-block:has(.article-image):not(:has(.prose)) {padding-bottom:24px}
 .dynasty-story-page .dynasty-story-toolbar{border-color:var(--line)!important}
+
+
+/* AVVOMIKA — цельная летопись без горизонтальных разделителей.
+   Только страница «Династия Sims Stories»; другие разделы не меняем. */
+.dynasty-story-page .content-stream {
+  gap: 26px !important;
+}
+.dynasty-story-page .content-stream .content-block,
+.dynasty-story-page .content-stream .content-block:has(.article-image):not(:has(.prose)) {
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+.dynasty-story-page .content-stream .block-actions {
+  border: none !important;
+  border-top: none !important;
+  padding: 0 !important;
+  margin-top: 10px !important;
+}
+/* Между кнопками древ и вступлением вместо линии — свободное пространство. */
+.dynasty-story-page .family-tree-section {
+  border: none !important;
+  border-bottom: none !important;
+}
+/* Панель добавления продолжения без пунктирной рамки. */
+.dynasty-story-page .dynasty-story-toolbar {
+  border: none !important;
+  background: transparent !important;
+  padding: 8px 0 !important;
+}
