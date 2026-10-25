@@ -33,32 +33,18 @@ const expandedGroups=new Set(JSON.parse(localStorage.getItem('avvomika-nav-open'
 function groupRank(group,p){const order=group==='Мир'?worldMenuOrder:group==='Сверхъестественное'?occultOrder:archiveOrder;const i=order.indexOf(p.id);return i<0?1000:i;}
 function navLink(p,icon){return `<button class="nav-item ${active===p.id?'active':''}" data-go="${esc(p.id)}"><span class="icon">${esc(icon||p.icon||'♢')}</span><span>${esc(p.title)}</span></button>`;}
 function drawNav(){
-  let html=`<button class="nav-item nav-home ${active==='home'?'active':''}" data-go="home"><span class="icon">⌂</span>Главная</button>`;
-  const games=[{key:'The Sims 4',title:'The Sims 4',symbol:'♢',id:'sims4'}, {key:'inZOI',title:'inZOI',symbol:'◈',id:'inzoi'}, {key:'The Sims 3',title:'The Sims 3',symbol:'◇',id:'sims3'}];
-  for(const g of games){
-    const opened=expandedGroups.has(g.key);
-    html+=`<button class="nav-group-toggle game-toggle ${g.id==='sims4'?'sims4-toggle':''}" data-group="${esc(g.key)}" aria-expanded="${opened}"><span class="game-group-name"><span class="game-group-icon">${g.symbol}</span>${g.title}</span><span class="nav-chevron">⌄</span></button>`;
-    html+=`<div class="nav-game-items" ${opened?'':'hidden'}>`;
-    if(g.id==='sims4'){
-      html+=navLink(page('sims4'),'♢');
-      for(const group of sims4Groups){
-        const isOpen=expandedGroups.has(group),items=data.pages.filter(p=>p.group===group && p.id!=='cities').sort((a,b)=>groupRank(group,a)-groupRank(group,b));
-        html+=`<button class="nav-group-toggle nav-subgroup" data-group="${esc(group)}" aria-expanded="${isOpen}"><span>${esc(group)}</span><span class="nav-chevron">⌄</span></button>`;
-        html+=`<div class="nav-subgroup-items" ${isOpen?'':'hidden'}>`;
-        for(const item of items)html+=navLink(item,'♢');
-        if(group==='Сверхъестественное')html+=`<button class="nav-item" data-add-section="1"><span class="icon">＋</span>Добавить раздел</button>`;
-        html+='</div>';
-      }
-    }else{
-      html+=navLink(page(g.id),g.symbol);
-      const children=data.pages.filter(p=>p.group===g.key);
-      for(const child of children)html+=navLink(child,g.symbol);
-    }
-    html+='</div>';
-  }
-  html+=`<div class="nav-standalone"><button class="nav-item ${active==='author'?'active':''}" data-go="author"><span class="icon">✎</span>Об авторе</button></div>`;
-  nav.innerHTML=html;
+ const visible=['updates','families','other-families'];
+ let html=`<button class="nav-item nav-home ${active==='home'?'active':''}" data-go="home"><span class="icon">⌂</span>Главная</button>`;
+ const isOpen=expandedGroups.has('The Sims 4');
+ html+=`<div class="avv-simple-game-group"><div class="avv-simple-game-head">
+    <button class="nav-group-toggle game-toggle ${active==='sims4'?'active':''}" data-go="sims4"><span class="game-group-name"><span class="game-group-icon">♢</span>The Sims 4</span></button>
+    <button class="avv-expand-toggle" type="button" data-group="The Sims 4" aria-label="Раскрыть разделы The Sims 4" aria-expanded="${isOpen}">${isOpen?'⌃':'⌄'}</button>
+   </div><div class="nav-game-items avv-sims4-subnav" ${isOpen?'':'hidden'}>${visible.map(id=>navLink(page(id),'♢')).join('')}</div></div>`;
+ for(const [id,symbol] of [['inzoi','◈'],['sims3','◇']])html+=navLink(page(id),symbol);
+ html+=`<div class="nav-standalone">${navLink(page('author'),'✎')}</div>`;
+ nav.innerHTML=html;
 }
+
 nav.addEventListener('click',e=>{
  if(e.target.closest('[data-add-section]')){openSectionEditor();return;}
  const toggle=e.target.closest('[data-group]');if(!toggle)return;
@@ -77,22 +63,12 @@ function home(){
  <section class="section"><div class="info-box">Это пространство Avvomika: проекты развиваются и пополняются новыми историями.</div></section>`;
 }
 function sims4Home(){
- const links=[
-  ['all-families','Династия Sims Stories'],
-  ['families','Двадцатка влиятельных семей'],
-  ['other-families','Семьи Sims Stories'],
-  ['updates','Дневник Sims Stories']
- ];
- app.innerHTML=`<section class="page sims4-overview">
-  <span class="kicker">♢ THE SIMS 4</span>
-  <h1>The Sims 4</h1>
-  <section class="section"><h2>Разделы Sims Stories</h2>
-   <div class="grid sims-stories-grid">${links.map(([id,title])=>`<button class="card sims-story-link" type="button" data-go="${id}"><span class="card-icon">♢</span><h3>${esc(title)}</h3><span class="arrow">Открыть ↗</span></button>`).join('')}</div>
-  </section>
-  ${universalBlocks('sims4')}
-  ${articleList('sims4')}
- </section>`;
+ const links=[['updates','Дневник Sims Stories'],['families','Двадцатка влиятельных семей'],['other-families','Семьи Sims Stories']];
+ app.innerHTML=`<section class="page sims4-overview"><span class="kicker">♢ THE SIMS 4</span><h1>The Sims 4</h1>
+ <div class="grid sims-stories-grid avv-three-sections">${links.map(([id,title])=>`<button class="card sims-story-link" type="button" data-go="${id}"><span class="card-icon">♢</span><h3>${esc(title)}</h3><span class="arrow">Открыть ↗</span></button>`).join('')}</div>
+ ${universalBlocks('sims4')}${articleList('sims4')}</section>`;
 }
+
 function editPortal(){const modal=modalForm('Приветствие Avvomika',[{name:'body',label:'Текст главной страницы',multiline:true}],v=>{data.portalDescription=v.body;persist()});modal.querySelector('[name=body]').value=data.portalDescription||''}
 function editSims4Intro(){const modal=modalForm('Вступление The Sims 4',[{name:'body',label:'Описание Sims Stories',multiline:true}],v=>{data.homeDescription=v.body;persist()});modal.querySelector('[name=body]').value=data.homeDescription||''}
 
@@ -102,12 +78,54 @@ function dynasticHousesHTML(){
  const assigned=new Set(houses.flatMap(h=>h.members||[]));
  const groupCards=houses.map(h=>{
   const members=(h.members||[]).map(id=>page(id)).filter(Boolean);
-  const links=members.map(p=>`<button class="dynastic-family" data-go="${esc(p.id)}"><span class="dynastic-family-symbol">♢</span>${esc(p.title)}<span aria-hidden="true">↗</span></button>`).join('');
-  return `<section class="dynastic-house"><div class="dynastic-head"><h2>${esc(h.title)}</h2><button class="edit-current" data-edit-house="${esc(h.id)}">✎ Изменить</button></div><div class="dynastic-description">${linkedText(h.body)}</div>${familyTreeLinks('house/'+h.id,h.title,true)}${members.length?`<div class="dynastic-members">${links}</div>`:'<div class="dynastic-empty">Статус: место свободно</div>'}</section>`;
+  const summary=String(h.body||'').slice(0,260);
+  return `<button type="button" class="dynastic-house avv-house-card" data-go="house/${esc(h.id)}">
+   <span class="avv-house-card-title">${esc(h.title)}</span>
+   <span class="avv-house-card-desc">${esc(summary)}</span>
+   <span class="avv-house-card-foot">${members.length?`Семейств: ${members.length}`:'Место пока свободно'} <span>Открыть →</span></span>
+  </button>`;
  }).join('');
- const remaining=data.families.map((name,i)=>page('family-'+(i+1))).filter(p=>p&&!assigned.has(p.id)).sort((a,b)=>{const ai=REMAINING_FAMILY_ORDER.indexOf(a.title),bi=REMAINING_FAMILY_ORDER.indexOf(b.title);return (ai<0?999:ai)-(bi<0?999:bi)});
- return `<section class="dynastic-section"><div class="dynastic-intro"><h2>Династические дома</h2><p>История Двадцатки складывается из династических домов и самостоятельных семейств.</p></div><div class="dynastic-houses">${groupCards}</div><section class="dynastic-remaining"><h2>Остальные семьи Двадцатки</h2><div class="grid">${remaining.map(card).join('')}</div></section></section>`;
+ const remaining=(data.families||[]).map((name,i)=>page('family-'+(i+1))).filter(p=>p&&!assigned.has(p.id)).sort((a,b)=>{const ai=REMAINING_FAMILY_ORDER.indexOf(a.title),bi=REMAINING_FAMILY_ORDER.indexOf(b.title);return (ai<0?999:ai)-(bi<0?999:bi)});
+ return `<section class="dynastic-section avv-dynastic-overview"><div class="avv-house-grid">${groupCards}</div>
+  <section class="dynastic-remaining"><h2>Остальные семьи Двадцатки</h2><div class="grid">${remaining.map(card).join('')}</div></section>
+ </section>`;
 }
+function storyToolbar(parent,chapters=true){
+ if(!ownerMode)return '';
+ return `<div class="avv-story-toolbar"><button class="create-main" type="button" data-story-insert="text" data-story-parent="${esc(parent)}">＋ Добавить текст</button>
+  <button class="create-secondary" type="button" data-story-insert="image" data-story-parent="${esc(parent)}">＋ Добавить скриншот</button>
+  ${chapters?`<button class="create-secondary" type="button" data-story-chapter="${esc(parent)}">＋ Добавить главу</button>`:''}
+ </div>`;
+}
+function chapterCards(parent){
+ const items=(data.articles||[]).filter(x=>x.parent===parent);
+ return items.length?`<div class="grid avv-chapter-grid">${items.map(x=>`<button class="card avv-chapter-card" data-go="article/${esc(x.id)}"><span class="card-icon">♢</span><h3>${esc(x.title)}</h3><p>${esc(String(x.body||'').slice(0,145))}</p><span class="arrow">Открыть главу ↗</span></button>`).join('')}</div>`:'';
+}
+function storyContent(parent){return `${universalBlocks(parent)}${chapterCards(parent)}${storyToolbar(parent)}`;}
+function housePage(id){
+ const h=(data.dynasticHouses||[]).find(x=>x.id===id);
+ if(!h){app.innerHTML='<section class="page"><h1>Дом не найден</h1></section>';return;}
+ const members=(h.members||[]).map(x=>page(x)).filter(Boolean);
+ app.innerHTML=`<article class="page story-page house-story-page"><a class="back-link" href="#families">← Двадцатка влиятельных семей</a>
+ <span class="kicker">THE SIMS 4 / ДИНАСТИЧЕСКИЕ ДОМА</span>
+ <div class="page-top"><h1>${esc(h.title)}</h1><button class="edit-current" data-edit-house="${esc(h.id)}">✎ Изменить описание</button></div>
+ ${familyTreeLinks('house/'+h.id,h.title)}
+ <div class="prose avv-story-description">${linkedText(h.body)}</div>
+ ${members.length?`<section class="avv-house-members"><h2>Семейства дома</h2><div class="avv-member-links">${members.map(p=>`<button class="dynastic-family" data-go="${esc(p.id)}">♢ ${esc(p.title)} ↗</button>`).join('')}</div></section>`:''}
+ ${storyContent('house/'+h.id)}</article>`;
+}
+function entryPage(id){
+ const entry=(data.entries||[]).find(x=>x.id===id);
+ if(!entry){app.innerHTML='<section class="page"><h1>Запись не найдена</h1></section>';return;}
+ const family=['other-families','families','all-families'].includes(entry.parent);
+ app.innerHTML=`<article class="page story-page entry-story-page"><a class="back-link" href="#${esc(entry.parent)}">← Вернуться к семьям</a>
+ <span class="kicker">THE SIMS 4 / СЕМЬИ SIMS STORIES</span>
+ <div class="page-top"><h1>${esc(entry.title)}</h1><button class="edit-current" data-entry="${esc(entry.id)}">✎ Изменить описание</button></div>
+ ${family?familyTreeLinks('entry/'+entry.id,entry.title):''}
+ <div class="prose avv-story-description">${linkedText(entry.body||'')}</div>
+ ${storyContent('entry/'+entry.id)}</article>`;
+}
+
 function editDynasticHouse(id){
  const h=(data.dynasticHouses||[]).find(x=>x.id===id);if(!h)return;
  const modal=modalForm('Редактировать династический дом',[{name:'title',label:'Название дома'},{name:'body',label:'Описание',multiline:true}],v=>{h.title=v.title;h.body=v.body;persist()});
@@ -115,39 +133,55 @@ function editDynasticHouse(id){
 }
 
 function details(p){
- // The Sims Stories dynasty has an editorial page rather than a generic collection layout.
- // This changes only markup: existing description, trees and blocks remain in data.json.
  if(p.id==='all-families'){
-   const treeButtons=familyTreeLinks('all-families',p.title);
-   app.innerHTML=`<article class="page dynasty-story-page">
-     <span class="kicker">♢ THE SIMS 4 / МИР</span>
-     <div class="page-top"><h1>${esc(p.title)}</h1></div>
-     ${treeButtons}
-     <section class="dynasty-story-intro"><div class="prose">${linkedText(p.body)}</div>
-       <button class="edit-current" data-edit="${esc(p.id)}">✎ Изменить вступление</button>
-     </section>
-     ${universalBlocks(p.id)}
-     ${articleList(p.id)}
-     <div class="dynasty-story-toolbar">
-       <div class="dynasty-story-toolbar-title">Продолжить летопись</div>
-       <button class="create-main" type="button" data-dynasty-insert="text">＋ Добавить текст</button>
-       <button class="create-secondary" type="button" data-dynasty-insert="image">＋ Добавить скриншот</button>
-       <p>Добавляй фрагменты по очереди. Стрелками ↑ и ↓ у каждого блока можно менять их порядок.</p>
-     </div>
-   </article>`;
-   return;
+  // Legacy link safely redirects to diary without moving or deleting saved content.
+  if(location.hash!=='#updates')location.hash='updates';
+  return;
  }
+ if(p.id==='updates'){
+  app.innerHTML=`<article class="page story-page diary-story-page"><span class="kicker">THE SIMS 4</span>
+   <h1>Дневник Sims Stories</h1>
+   ${familyTreeLinks('all-families','Дневник Sims Stories')}
+   <div class="prose avv-story-description">${linkedText(p.body||'')}</div>
+   ${storyContent('updates')}</article>`;
+  return;
+ }
+ if(p.id==='families'){
+  app.innerHTML=`<article class="page twenty-families-page"><span class="kicker">THE SIMS 4</span><h1>${esc(p.title)}</h1>
+   <div class="prose avv-story-description">${linkedText(p.body||'')}</div>
+   ${dynasticHousesHTML()}
+   ${universalBlocks('families')}
+   </article>`;
+  return;
+ }
+ if(p.id==='other-families'){
+  app.innerHTML=`<article class="page other-families-page"><span class="kicker">THE SIMS 4</span><h1>${esc(p.title)}</h1>
+   <div class="prose avv-story-description">${linkedText(p.body||'')}</div>
+   <div class="avv-family-toolbar"><button class="create-main" type="button" data-add="other-families">＋ Добавить семью</button></div>
+   ${collection('other-families')}
+   ${storyContent('other-families')}</article>`;
+  return;
+ }
+ // Each named family in the twenty, inZOI and The Sims 3: illustrated stories and chapters.
+ if(p.id.startsWith('family-')||p.id==='inzoi'||p.id==='sims3'){
+  const isFamily=p.id.startsWith('family-');
+  app.innerHTML=`<article class="page story-page ${isFamily?'family-story-page':'game-story-page'}">
+   ${isFamily?'<a class="back-link" href="#families">← Двадцатка влиятельных семей</a>':''}
+   <span class="kicker">${isFamily?'THE SIMS 4 / ДВАДЦАТКА':'AVVOMIKA / ИГРОВЫЕ МИРЫ'}</span>
+   <div class="page-top"><h1>${esc(p.title)}</h1><button class="edit-current" data-edit="${esc(p.id)}">✎ Изменить описание</button></div>
+   ${isFamily?familyTreeLinks(p.id,p.title):''}
+   <div class="prose avv-story-description">${linkedText(p.body||'')}</div>
+   ${storyContent(p.id)}</article>`;
+  return;
+ }
+ // Remaining historical pages and author retain their existing content and editors.
  let extra='';
- if(p.id==='families')extra=dynasticHousesHTML()+collection('families')+`<h2 class="spaced-heading">Генеалогические древа</h2><p class="prose">Ссылки на конкретные древа можно добавить на страницах семейств.</p><div class="links">${data.externalTrees.map(x=>`<a target="_blank" rel="noopener" href="${esc(x.url)}">${esc(x.label)} ↗</a>`).join('')}</div>`;
- if(p.id==='all-families')extra=familyTreeLinks('all-families',p.title)+collection(p.id);
- if(p.id==='other-families')extra=collection(p.id);
  if(p.id==='characters')extra=`<div class="residence-tools"><button class="edit-current" data-cities-edit="1">✎ Изменить список городов проживания</button></div>`+collection(p.id);
- if(p.id.startsWith('family-'))extra=familyTreeLinks(p.id,p.title);
  if(p.id==='mods')extra=modsTable();
  if(p.id==='cities')extra=`<h2>Города Симс 4</h2><div class="city-list">${data.cities.map(x=>`<button class="tag city-link" data-city="${esc(x)}">${esc(x)} ↗</button>`).join('')}</div>`;
  if(p.group==='Сверхъестественное')extra+=subsectionsHTML(p.id)+collection(p.id);
  extra+=universalBlocks(p.id)+articleList(p.id);
- app.innerHTML=`<article class="page"><span class="kicker">${esc(sims4Groups.includes(p.group)||p.group==='Семья'?'THE SIMS 4 / '+p.group:'AVVOMIKA / '+p.group)}</span><div class="page-top"><h1>${esc(p.title)}</h1><button class="edit-current" data-edit="${esc(p.id)}">✎ Изменить описание</button></div><div class="prose">${linkedText(p.body)}</div><div class="create-row"><button class="create-main" data-create="${esc(p.id)}">＋ Добавить на страницу</button><button class="create-secondary" data-photo-add="${esc(p.id)}">＋ Добавить фото</button><span class="create-hint">Фото, текст, карточка или отдельная страница</span></div>${extra}</article>`;
+ app.innerHTML=`<article class="page"><span class="kicker">${esc(sims4Groups.includes(p.group)||p.group==='Семья'?'THE SIMS 4 / '+p.group:'AVVOMIKA / '+p.group)}</span><div class="page-top"><h1>${esc(p.title)}</h1><button class="edit-current" data-edit="${esc(p.id)}">✎ Изменить описание</button></div><div class="prose">${linkedText(p.body)}</div><div class="create-row"><button class="create-main" data-create="${esc(p.id)}">＋ Добавить на страницу</button><button class="create-secondary" data-photo-add="${esc(p.id)}">＋ Добавить фото</button></div>${extra}</article>`;
 }
 
 function editHistory(){const modal=modalForm('История вселенной',[{name:'body',label:'История Sims Stories',multiline:true}],v=>{data.homeHistory=v.body;persist()});modal.querySelector('[name=body]').value=data.homeHistory||''}
@@ -159,7 +193,7 @@ function normalizeData(){data.pages=data.pages.filter(p=>!['about','servo','chro
  for(const gp of gamePages)if(!data.pages.some(p=>p.id===gp.id))data.pages.push(gp);const sims4Page=data.pages.find(p=>p.id==='sims4');if(sims4Page)sims4Page.title='The Sims 4';
  for(const item of data.pages)if(sims4Groups.includes(item.group)||item.group==='Семья')item.icon='♢';
 }
-function searchView(q){const entries=(data.entries||[]).filter(x=>(x.title+' '+x.body).toLowerCase().includes(q.toLowerCase()));let matched=data.pages.filter(p=>p.id!=='cities'&&(p.title+' '+p.body+' '+p.group).toLowerCase().includes(q.toLowerCase()));app.innerHTML=`<section class="page"><span class="kicker">ПОИСК</span><h1>Результаты поиска</h1><p class="lead">Запрос: ${esc(q)}</p>${matched.length||entries.length?`<div class="grid">${matched.map(card).join('')}${entries.map(entryCard).join('')}</div>`:'<div class="empty">Ничего не найдено. Попробуйте другой запрос.</div>'}</section>`}function render({ resetScroll = false } = {}){const savedScrollY=window.scrollY;const currentRoute=location.hash;active=decodeURIComponent(location.hash.slice(1))||'home';const current=page(active);if(current){if(sims4Groups.includes(current.group)||current.group==='Семья')expandedGroups.add('The Sims 4');else if(current.id==='sims4')expandedGroups.add('The Sims 4');else if(current.id==='inzoi')expandedGroups.add('inZOI');else if(current.id==='sims3')expandedGroups.add('The Sims 3');}drawNav();if(active.startsWith('search='))searchView(active.slice(7));else if(active==='home')home();else if(active==='sims4')sims4Home();else if(active.startsWith('article/'))articlePage(decodeURIComponent(active.slice(8)));else if(active.startsWith('city/'))cityPage(decodeURIComponent(active.slice(5)));else{const p=page(active);p?details(p):home()}if(resetScroll){
+function searchView(q){const entries=(data.entries||[]).filter(x=>(x.title+' '+x.body).toLowerCase().includes(q.toLowerCase()));let matched=data.pages.filter(p=>p.id!=='cities'&&(p.title+' '+p.body+' '+p.group).toLowerCase().includes(q.toLowerCase()));app.innerHTML=`<section class="page"><span class="kicker">ПОИСК</span><h1>Результаты поиска</h1><p class="lead">Запрос: ${esc(q)}</p>${matched.length||entries.length?`<div class="grid">${matched.map(card).join('')}${entries.map(entryCard).join('')}</div>`:'<div class="empty">Ничего не найдено. Попробуйте другой запрос.</div>'}</section>`}function render({ resetScroll = false } = {}){const savedScrollY=window.scrollY;const currentRoute=location.hash;active=decodeURIComponent(location.hash.slice(1))||'home';const current=page(active);if(active.startsWith('house/')||active.startsWith('entry/')||active.startsWith('family-')||active.startsWith('article/'))expandedGroups.add('The Sims 4');if(current){if(sims4Groups.includes(current.group)||current.group==='Семья')expandedGroups.add('The Sims 4');else if(current.id==='sims4')expandedGroups.add('The Sims 4');else if(current.id==='inzoi')expandedGroups.add('inZOI');else if(current.id==='sims3')expandedGroups.add('The Sims 3');}drawNav();if(active.startsWith('search='))searchView(active.slice(7));else if(active==='home')home();else if(active==='sims4')sims4Home();else if(active.startsWith('article/'))articlePage(decodeURIComponent(active.slice(8)));else if(active.startsWith('house/'))housePage(decodeURIComponent(active.slice(6)));else if(active.startsWith('entry/'))entryPage(decodeURIComponent(active.slice(6)));else if(active.startsWith('city/'))cityPage(decodeURIComponent(active.slice(5)));else{const p=page(active);p?details(p):home()}if(resetScroll){
   window.scrollTo(0,0);
  }else{
   // Rebuilding the page after saving text/photos must not jump to the top.
@@ -208,7 +242,7 @@ function entryCard(x){
  const family=['other-families','all-families','families'].includes(x.parent);
  const city=x.parent==='characters'&&x.city?`<p class="residence-label"><span>Место проживания:</span> ${esc(x.city)}</p>`:'';
  const trees=family?familyTreeLinks('entry/'+x.id,x.title,true):'';
- return `<article class="card entry-card"><h3>${esc(x.title)}</h3><p>${linkedText(x.body)}</p>${city}${trees}<div class="entry-controls"><button class="edit-current" data-entry="${esc(x.id)}">✎ Изменить</button><button class="edit-current" data-delete-entry="${esc(x.id)}">Удалить</button></div></article>`;
+ return `<article class="card entry-card"><h3>${esc(x.title)}</h3><p>${linkedText(x.body)}</p>${city}${trees}${family?`<button type="button" class="avv-entry-open" data-go="entry/${esc(x.id)}">Открыть страницу ↗</button>`:''}<div class="entry-controls"><button class="edit-current" data-entry="${esc(x.id)}">✎ Изменить</button><button class="edit-current" data-delete-entry="${esc(x.id)}">Удалить</button></div></article>`;
 }
 function collection(parent){const entries=(data.entries||[]).filter(x=>x.parent===parent);return entries.length?`<div class="grid entry-grid">${entries.map(entryCard).join('')}</div>`:''}
 function modalForm(title,fields,onSave){
@@ -348,6 +382,7 @@ function editPhoto(parent){
 }
 // Единая настройка двух внешних древ: династия, дома, все семьи Двадцатки и новые семьи.
 function treeTargetTitle(id){
+ if(id==='all-families')return 'Дневник Sims Stories';
  if(id.startsWith('house/'))return (data.dynasticHouses||[]).find(h=>h.id===id.slice(6))?.title;
  if(id.startsWith('entry/'))return (data.entries||[]).find(e=>e.id===id.slice(6))?.title;
  return page(id)?.title;
@@ -394,8 +429,8 @@ function editFamilyTrees(id){
 function editBlock(parent,id){
  const editorScrollY=window.scrollY,editorRoute=location.hash;
  const old=(data.blocks||[]).find(x=>x.id===id);
- if(parent==='all-families' && old?.kind==='dynasty-text')return editDynastyStoryBlock('text',old);
- if(parent==='all-families' && old?.kind==='dynasty-image')return editDynastyStoryBlock('image',old);
+ if(old?.kind==='dynasty-text')return editDynastyStoryBlock('text',old,old.parent);
+ if(old?.kind==='dynasty-image')return editDynastyStoryBlock('image',old,old.parent);
  const modal=document.createElement('dialog');modal.className='custom-dialog block-photo-dialog';
  modal.innerHTML=`<form><h2>${old?'Изменить текст и изображения':'Добавить текст и изображение'}</h2>
  <label>Заголовок (необязательно для фотографии)<input name="title" placeholder="Например, семейный портрет"></label>
@@ -435,7 +470,16 @@ function deleteBlock(id){if(!confirm('Удалить блок?'))return;data.blo
 function moveBlock(id,dir){const b=data.blocks.find(x=>x.id===id);if(!b)return;const peers=data.blocks.filter(x=>x.parent===b.parent).sort((a,c)=>a.order-c.order),i=peers.indexOf(b),other=peers[i+dir];if(!other)return;const temp=b.order;b.order=other.order;other.order=temp;persist()}
 function articleList(parent){const items=(data.articles||[]).filter(x=>x.parent===parent);return items.length?`<section class="article-links"><h2>Подробнее по теме</h2><div class="grid">${items.map(x=>`<button class="card" data-go="article/${esc(x.id)}"><h3>${esc(x.title)}</h3><p>${esc(x.body.slice(0,130))}</p><span class="arrow">Открыть страницу ↗</span></button>`).join('')}</div></section>`:''}
 
-function articlePage(id){const a=(data.articles||[]).find(x=>x.id===id);if(!a){app.innerHTML='<section class="page"><h1>Страница не найдена</h1></section>';return}app.innerHTML=`<article class="page"><a class="back-link" href="#${esc(a.parent)}">← Вернуться</a><div class="page-top"><h1>${esc(a.title)}</h1><div class="block-actions"><button class="edit-current" data-article-edit="${esc(id)}">✎ Изменить страницу</button><button class="edit-current" data-article-delete="${esc(id)}">Удалить</button></div></div><div class="prose">${linkedText(a.body)}</div><div class="create-row"><button class="create-main" data-create="article/${esc(id)}">＋ Добавить на страницу</button><button class="create-secondary" data-photo-add="article/${esc(id)}">＋ Добавить фото</button><span class="create-hint">Текст, фото или вложенная страница</span></div>${universalBlocks('article/'+id)}${articleList('article/'+id)}</article>`}
+function articlePage(id){
+ const a=(data.articles||[]).find(x=>x.id===id);
+ if(!a){app.innerHTML='<section class="page"><h1>Страница не найдена</h1></section>';return;}
+ const destination=a.parent||'updates';
+ app.innerHTML=`<article class="page story-page chapter-story-page"><a class="back-link" href="#${esc(destination)}">← Вернуться</a>
+ <span class="kicker">AVVOMIKA / ИСТОРИИ</span><div class="page-top"><h1>${esc(a.title)}</h1>
+ <div class="block-actions"><button class="edit-current" data-article-edit="${esc(id)}">✎ Изменить главу</button><button class="edit-current" data-article-delete="${esc(id)}">Удалить</button></div></div>
+ <div class="prose avv-story-description">${linkedText(a.body||'')}</div>
+ ${storyContent('article/'+id)}</article>`;
+}
 
 function editArticle(parent,id){const old=(data.articles||[]).find(x=>x.id===id);const modal=modalForm(old?'Редактировать статью':'Новая страница',[{name:'title',label:'Название страницы'},{name:'body',label:'Текст статьи',multiline:true}],v=>{data.articles||=[];if(old)Object.assign(old,v);else data.articles.push({...v,parent,id:'article-'+Date.now()});persist();if(!old)location.hash='article/'+data.articles[data.articles.length-1].id});if(old){modal.querySelector('[name=title]').value=old.title;modal.querySelector('[name=body]').value=old.body}}
 function deleteArticle(id){if(!confirm('Удалить статью и её вложенные материалы?'))return;data.articles=data.articles.filter(x=>x.id!==id);data.blocks=(data.blocks||[]).filter(x=>x.parent!=='article/'+id);location.hash='home';persist()}
@@ -471,7 +515,7 @@ function restoreEditorScroll(y,route){
   });
  });
 }
-function editDynastyStoryBlock(kind,old=null){
+function editDynastyStoryBlock(kind,old=null,parent='all-families'){
  if(!ownerMode)return;
  const editorScrollY=window.scrollY;
  const editorRoute=location.hash;
@@ -521,9 +565,9 @@ function editDynastyStoryBlock(kind,old=null){
      let added=null;
      if(old)Object.assign(old,record);
      else{
-       const positions=data.blocks.filter(b=>b.parent==='all-families').map(b=>Number(b.order)||0);
+       const positions=data.blocks.filter(b=>b.parent===parent).map(b=>Number(b.order)||0);
        const order=Math.max(-1,...positions)+1;
-       added={...record,parent:'all-families',id:'block-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),order};
+       added={...record,parent,id:'block-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),order};
        data.blocks.push(added);
      }
      try{localStorage.setItem('sims-data',JSON.stringify(data));window.avvSync?.noteLocalSave?.()}
@@ -535,11 +579,14 @@ function editDynastyStoryBlock(kind,old=null){
  dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();
 }
 document.addEventListener('click',e=>{
- const trigger=e.target.closest('[data-dynasty-insert]');
+ const trigger=e.target.closest('[data-story-insert],[data-dynasty-insert]');
  if(!trigger||!ownerMode)return;
- editDynastyStoryBlock(trigger.dataset.dynastyInsert);
+ editDynastyStoryBlock(trigger.dataset.storyInsert||trigger.dataset.dynastyInsert,null,trigger.dataset.storyParent||'all-families');
 });
 
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-story-chapter]');if(b&&ownerMode)editArticle(b.dataset.storyChapter);
+});
 // Safe editor bridge: no tokens or private credentials are added to exported data.
 window.avvSyncBridge = {
   getData() { return data; },
