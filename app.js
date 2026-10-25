@@ -93,6 +93,28 @@ function editDynasticHouse(id){
 }
 
 function details(p){
+ // The Sims Stories dynasty has an editorial page rather than a generic collection layout.
+ // This changes only markup: existing description, trees and blocks remain in data.json.
+ if(p.id==='all-families'){
+   const treeButtons=familyTreeLinks('all-families',p.title);
+   app.innerHTML=`<article class="page dynasty-story-page">
+     <span class="kicker">♢ THE SIMS 4 / МИР</span>
+     <div class="page-top"><h1>${esc(p.title)}</h1></div>
+     ${treeButtons}
+     <section class="dynasty-story-intro"><div class="prose">${linkedText(p.body)}</div>
+       <button class="edit-current" data-edit="${esc(p.id)}">✎ Изменить вступление</button>
+     </section>
+     ${universalBlocks(p.id)}
+     ${articleList(p.id)}
+     <div class="dynasty-story-toolbar">
+       <div class="dynasty-story-toolbar-title">Продолжить летопись</div>
+       <button class="create-main" type="button" data-dynasty-insert="text">＋ Добавить текст</button>
+       <button class="create-secondary" type="button" data-dynasty-insert="image">＋ Добавить скриншот</button>
+       <p>Добавляй фрагменты по очереди. Стрелками ↑ и ↓ у каждого блока можно менять их порядок.</p>
+     </div>
+   </article>`;
+   return;
+ }
  let extra='';
  if(p.id==='families')extra=dynasticHousesHTML()+collection('families')+`<h2 class="spaced-heading">Генеалогические древа</h2><p class="prose">Ссылки на конкретные древа можно добавить на страницах семейств.</p><div class="links">${data.externalTrees.map(x=>`<a target="_blank" rel="noopener" href="${esc(x.url)}">${esc(x.label)} ↗</a>`).join('')}</div>`;
  if(p.id==='all-families')extra=familyTreeLinks('all-families',p.title)+collection(p.id);
@@ -335,6 +357,8 @@ function editFamilyTrees(id){
 }
 function editBlock(parent,id){
  const old=(data.blocks||[]).find(x=>x.id===id);
+ if(parent==='all-families' && old?.kind==='dynasty-text')return editDynastyStoryBlock('text',old);
+ if(parent==='all-families' && old?.kind==='dynasty-image')return editDynastyStoryBlock('image',old);
  const modal=document.createElement('dialog');modal.className='custom-dialog block-photo-dialog';
  modal.innerHTML=`<form><h2>${old?'Изменить текст и изображения':'Добавить текст и изображение'}</h2>
  <label>Заголовок (необязательно для фотографии)<input name="title" placeholder="Например, семейный портрет"></label>
@@ -394,6 +418,74 @@ function openCreateMenu(parent){
  modal.onclick=e=>{if(e.target.closest('[data-close-create]'))modal.close();const b=e.target.closest('[data-create-type]');if(!b)return;const type=b.dataset.createType;modal.close();if(type==='photo')editPhoto(parent);else if(type==='text')editBlock(parent);else if(type==='article')editArticle(parent);else if(type==='entry')openEntryEditor(parent);else if(type==='city')openCitiesEditor()};
  modal.addEventListener('close',()=>modal.remove());modal.showModal();
 }
+
+// Short, focused editors for the dynasty's alternating text/screenshot timeline.
+// Older universal blocks are still supported and can be reordered together with new ones.
+function editDynastyStoryBlock(kind,old=null){
+ if(!ownerMode)return;
+ const isImage=kind==='image';
+ const dialog=document.createElement('dialog');dialog.className='custom-dialog dynasty-story-dialog';
+ dialog.innerHTML=`<form>
+   <h2>${old?'Редактировать':'Добавить'} ${isImage?'скриншот':'текст'}</h2>
+   ${isImage?`<label>Скриншот с компьютера или планшета
+       <input name="imageFile" type="file" accept="image/jpeg,image/png,image/webp"></label>
+       <label>Или ссылка на изображение (необязательно)
+       <input name="imageUrl" type="text" placeholder="https://…"></label>
+       <label>Подпись под скриншотом (необязательно)
+       <input name="imageCaption" type="text" placeholder="Например, знакомство основателей"></label>
+       <div class="dynasty-current-image"></div>`
+      :`<label>Подзаголовок (необязательно)
+       <input name="title" type="text" placeholder="Например, Первые годы"></label>
+       <label>Текст истории
+       <textarea name="body" rows="10" required placeholder="Напиши продолжение своей истории…"></textarea></label>`}
+   <menu><button type="button" class="secondary" data-cancel>Отмена</button>
+     <button type="submit">Сохранить</button></menu></form>`;
+ document.body.appendChild(dialog);
+ const form=dialog.querySelector('form');
+ if(old){
+   if(isImage){
+     form.elements.imageUrl.value=old.image?.startsWith('data:')?'':(old.image||'');
+     form.elements.imageCaption.value=old.imageCaption||'';
+     if(safeImageSource(old.image))dialog.querySelector('.dynasty-current-image').innerHTML=`<img src="${esc(old.image)}" alt="Текущий скриншот">`;
+   }else{form.elements.title.value=old.title||'';form.elements.body.value=old.body||'';}
+ }
+ dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();
+ form.addEventListener('submit',async e=>{
+   e.preventDefault();const button=form.querySelector('[type=submit]');button.disabled=true;
+   try{
+     const record=isImage?{
+       kind:'dynasty-image',title:'',body:'',image:old?.image||'',imageCaption:form.elements.imageCaption.value.trim(),link:'',linkLabel:''
+     }:{
+       kind:'dynasty-text',title:form.elements.title.value.trim(),body:form.elements.body.value.trim(),image:'',imageCaption:'',link:'',linkLabel:''
+     };
+     if(isImage){
+       const chosen=form.elements.imageFile.files[0];
+       if(chosen)record.image=await photoToDataURL(chosen);
+       else if(form.elements.imageUrl.value.trim())record.image=form.elements.imageUrl.value.trim();
+       if(!safeImageSource(record.image))throw Error('Выбери скриншот с устройства или вставь ссылку на изображение.');
+     }else if(!record.body)throw Error('Напиши текст истории.');
+     data.blocks||=[];
+     const previous=old?{...old}:null;
+     let added=null;
+     if(old)Object.assign(old,record);
+     else{
+       const positions=data.blocks.filter(b=>b.parent==='all-families').map(b=>Number(b.order)||0);
+       const order=Math.max(-1,...positions)+1;
+       added={...record,parent:'all-families',id:'block-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),order};
+       data.blocks.push(added);
+     }
+     try{localStorage.setItem('sims-data',JSON.stringify(data));window.avvSync?.noteLocalSave?.()}
+     catch(err){if(old)Object.assign(old,previous);if(added)data.blocks=data.blocks.filter(b=>b!==added);throw Error('Браузеру не хватает места. Попробуй уменьшить скриншот.')}
+     dialog.close();render();
+   }catch(err){alert('Не удалось сохранить: '+err.message)}finally{button.disabled=false;}
+ });
+ dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();
+}
+document.addEventListener('click',e=>{
+ const trigger=e.target.closest('[data-dynasty-insert]');
+ if(!trigger||!ownerMode)return;
+ editDynastyStoryBlock(trigger.dataset.dynastyInsert);
+});
 
 // Safe editor bridge: no tokens or private credentials are added to exported data.
 window.avvSyncBridge = {
