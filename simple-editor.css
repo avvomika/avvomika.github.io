@@ -103,3 +103,13 @@ body.public-view .dynasty-story-toolbar{display:none!important}
 body.public-view .edit-current,
 body.public-view [data-portal-edit],
 body.public-view [data-sims4-edit]{display:none!important}
+
+/* Dynasty v2: tree buttons directly under title; no extra visual header */
+.dynasty-story-page .page-top{margin-bottom:0!important}
+.dynasty-story-page .family-tree-section{margin:0 0 32px!important;padding:0 0 24px!important}
+.dynasty-story-page .family-tree-section .section-head{justify-content:flex-end!important;margin:0 0 8px!important;min-height:0!important}
+.dynasty-story-page .family-tree-section .section-head h2{display:none!important}
+.dynasty-story-page .family-tree-links{margin-top:0!important;display:flex;align-items:stretch;flex-wrap:wrap;gap:12px!important}
+.dynasty-story-page .family-tree-links .tree-link{margin:0!important;flex:0 1 auto}
+.dynasty-story-page .content-stream .content-block:has(.article-image):not(:has(.prose)) {padding-bottom:24px}
+.dynasty-story-page .dynasty-story-toolbar{border-color:var(--line)!important}
