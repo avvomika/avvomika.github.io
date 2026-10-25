@@ -145,3 +145,28 @@ body.public-view [data-sims4-edit]{display:none!important}
   background: transparent !important;
   padding: 8px 0 !important;
 }
+
+
+/* Avvomika / Дневник Sims Stories: текст и главы без шаблонной пустой панели.
+   Применяется ТОЛЬКО когда открыт #updates; статьи в других разделах не затрагиваются.
+   Панель добавления остаётся доступной в режиме ?edit=1. */
+body:has(#nav .nav-item[data-go="updates"].active) #app > article.page > .create-row {
+  border: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  padding: 0 !important;
+  margin: 16px 0 !important;
+}
+body:has(#nav .nav-item[data-go="updates"].active) #app > article.page > .create-row .create-hint {
+  display: none !important;
+}
+body.public-view:has(#nav .nav-item[data-go="updates"].active) #app > article.page > .create-row {
+  display: none !important;
+}
+/* Глава «Начало истории» сразу после подзаголовка, без «Подробнее по теме». */
+body:has(#nav .nav-item[data-go="updates"].active) #app > article.page > .article-links {
+  margin-top: 32px !important;
+}
+body:has(#nav .nav-item[data-go="updates"].active) #app > article.page > .article-links > h2 {
+  display: none !important;
+}
