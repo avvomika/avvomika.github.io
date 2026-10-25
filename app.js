@@ -66,10 +66,32 @@ nav.addEventListener('click',e=>{
  if(expandedGroups.has(g))expandedGroups.delete(g);else expandedGroups.add(g);
  localStorage.setItem('avvomika-nav-open',JSON.stringify([...expandedGroups]));drawNav();
 });
-function home(){app.innerHTML=`<section class="hero portal-hero"><h1>Каждый мир —<br><em>новая история.</em></h1><p class="lead">${esc(data.portalDescription||'Истории, персонажи, династии и открытия в The Sims 4, inZOI и The Sims 3.')}</p><button class="edit-current" data-portal-edit="1">✎ Изменить приветствие</button></section><section class="section"><div class="section-head"><h2>Выбери мир</h2></div><div class="grid games-grid">${['sims4','inzoi','sims3'].map(id=>card(page(id))).join('')}</div></section><section class="section"><div class="info-box">Это пространство Avvomika: проекты развиваются и пополняются новыми историями.</div></section>`}
+function home(){
+ const mainCards=['sims4','inzoi','sims3'].map(id=>card(page(id))).join('');
+ const authorCard=card(page('author'));
+ app.innerHTML=`<section class="hero portal-hero"><h1>Каждый мир —<br><em>новая история.</em></h1></section>
+ <section class="section"><div class="section-head"><h2>Выбери мир</h2></div>
+ <div class="grid games-grid">${mainCards}</div></section>
+ <section class="section author-home-section"><div class="section-head"><h2>Об авторе</h2></div>
+ <div class="grid author-home-grid">${authorCard}</div></section>
+ <section class="section"><div class="info-box">Это пространство Avvomika: проекты развиваются и пополняются новыми историями.</div></section>`;
+}
 function sims4Home(){
- const groups=[['Мир','Династии, семьи и персонажи','all-families'],['Сверхъестественное','Вампиры, оборотни, чародеи, феи и другие','vampires'],['Архив','Истории, дневник и модификации','stories']];
- app.innerHTML=`<section class="page sims4-overview"><span class="kicker">♢ THE SIMS 4</span><div class="page-top"><h1>The Sims 4</h1><button class="edit-current" data-sims4-edit="1">✎ Изменить вступление</button></div><div class="prose">${linkedText(data.homeDescription||'Sims Stories — энциклопедия авторской вселенной The Sims 4.')}</div><div class="section"><h2>Разделы Sims Stories</h2><div class="grid">${groups.map(([title,description,id])=>`<button class="card" data-go="${id}"><span class="card-icon">♢</span><h3>${esc(title)}</h3><p>${esc(description)}</p><span class="arrow">Перейти ↗</span></button>`).join('')}</div></div><section class="section home-history"><div class="section-head"><h2>История вселенной</h2><button class="edit-current" data-history-edit="1">✎ Редактировать историю</button></div><div class="prose">${linkedText(data.homeHistory||'')}</div></section><section class="section"><div class="section-head"><h2>Двадцатка влиятельных семей</h2></div><div class="grid">${['families','all-families','characters'].map(id=>card(page(id))).join('')}</div></section>${universalBlocks('sims4')}${articleList('sims4')}</section>`;
+ const links=[
+  ['all-families','Династия Sims Stories'],
+  ['families','Двадцатка влиятельных семей'],
+  ['other-families','Семьи Sims Stories'],
+  ['updates','Дневник Sims Stories']
+ ];
+ app.innerHTML=`<section class="page sims4-overview">
+  <span class="kicker">♢ THE SIMS 4</span>
+  <h1>The Sims 4</h1>
+  <section class="section"><h2>Разделы Sims Stories</h2>
+   <div class="grid sims-stories-grid">${links.map(([id,title])=>`<button class="card sims-story-link" type="button" data-go="${id}"><span class="card-icon">♢</span><h3>${esc(title)}</h3><span class="arrow">Открыть ↗</span></button>`).join('')}</div>
+  </section>
+  ${universalBlocks('sims4')}
+  ${articleList('sims4')}
+ </section>`;
 }
 function editPortal(){const modal=modalForm('Приветствие Avvomika',[{name:'body',label:'Текст главной страницы',multiline:true}],v=>{data.portalDescription=v.body;persist()});modal.querySelector('[name=body]').value=data.portalDescription||''}
 function editSims4Intro(){const modal=modalForm('Вступление The Sims 4',[{name:'body',label:'Описание Sims Stories',multiline:true}],v=>{data.homeDescription=v.body;persist()});modal.querySelector('[name=body]').value=data.homeDescription||''}
@@ -134,7 +156,7 @@ function editMod(id){const old=(data.mods||[]).find(m=>m.id===id);const fields=[
 function deleteMod(id){if(!confirm('Удалить мод из таблицы?'))return;data.mods=(data.mods||[]).filter(m=>m.id!==id);persist()}
 function normalizeData(){data.pages=data.pages.filter(p=>!['about','servo','chronicle'].includes(p.id));if(!data.pages.some(p=>p.id==='author'))data.pages.push({id:'author',title:'Об авторе',group:'Информация',icon:'✎',body:'Здесь можно рассказать об авторе Sims Stories — Avvomika, истории создания проекта и площадках, где выходят новые истории. Нажмите «Редактировать», чтобы написать свой текст.'});if(!data.pages.some(p=>p.id==='other-families'))data.pages.push({id:'other-families',title:'Семьи Sims Stories',group:'Мир',icon:'♧',body:'Другие семьи, проживающие в мире Sims Stories. Здесь можно добавлять семейства, их истории и отдельные материалы.'});for(const p of data.pages)if(worldMenuTitles[p.id]){p.title=worldMenuTitles[p.id];p.group='Мир'}const dynasty=data.pages.find(p=>p.id==='all-families');if(dynasty)dynasty.title='Династия Sims Stories';const otherFamilies=data.pages.find(p=>p.id==='other-families');if(otherFamilies)otherFamilies.title='Семьи Sims Stories';const order=['all-families','families','other-families','characters'];const occult=['vampires','werewolves','mages','fairies','mermaids','aliens','ghosts','plantsims'];const rank=p=>p.group==='Мир'?order.indexOf(p.id):p.group==='Сверхъестественное'?(occult.indexOf(p.id)<0?100:occult.indexOf(p.id)):0;data.pages.sort((a,b)=>a.group===b.group?rank(a)-rank(b):0);data.homeHistory ||= 'Здесь будет история вселенной Sims Stories. Нажмите «Редактировать историю», чтобы добавить свой текст.';data.mods ||= [];data.dynasticHouses ||= DEFAULT_DYNASTIC_HOUSES.map(h=>({...h,members:[...h.members]}));for(const h of data.dynasticHouses){if(h.id==='capuletti'&&h.title==='II. Династический дом Капулетти'){h.title='II. Династический дом Тиби';h.members=['family-3','family-5','family-8','family-17'];}}updateCityCatalog();for(const [idx,newName] of [[8,'Эль Кассар'],[15,'Ландграаб']]){if(data.families[idx]!==newName){const p=data.pages.find(x=>x.id==='family-'+(idx+1));const old=p?.title||data.families[idx];data.families[idx]=newName;if(p){p.title=newName;if(p.body?.startsWith('История семьи '+old+'.'))p.body=p.body.replace(old,newName)}}}const journal=data.pages.find(p=>p.id==='updates');if(journal)journal.title='Дневник Sims Stories';data.portalDescription ||= 'Истории, персонажи, династии и открытия в The Sims 4, inZOI и The Sims 3.';
  const gamePages=[{id:'sims4',title:'Обзор The Sims 4',group:'Игры',icon:'♢',body:'Мир Sims Stories: династии, биографии и хроники.'},{id:'inzoi',title:'inZOI',group:'Игры',icon:'◈',body:'Мои истории в inZOI. Здесь можно создавать статьи, добавлять описания и материалы по игре.'},{id:'sims3',title:'The Sims 3',group:'Игры',icon:'◇',body:'Мои истории в The Sims 3: династия Симовских и другие события сохранения.'}];
- for(const gp of gamePages)if(!data.pages.some(p=>p.id===gp.id))data.pages.push(gp);
+ for(const gp of gamePages)if(!data.pages.some(p=>p.id===gp.id))data.pages.push(gp);const sims4Page=data.pages.find(p=>p.id==='sims4');if(sims4Page)sims4Page.title='The Sims 4';
  for(const item of data.pages)if(sims4Groups.includes(item.group)||item.group==='Семья')item.icon='♢';
 }
 function searchView(q){const entries=(data.entries||[]).filter(x=>(x.title+' '+x.body).toLowerCase().includes(q.toLowerCase()));let matched=data.pages.filter(p=>p.id!=='cities'&&(p.title+' '+p.body+' '+p.group).toLowerCase().includes(q.toLowerCase()));app.innerHTML=`<section class="page"><span class="kicker">ПОИСК</span><h1>Результаты поиска</h1><p class="lead">Запрос: ${esc(q)}</p>${matched.length||entries.length?`<div class="grid">${matched.map(card).join('')}${entries.map(entryCard).join('')}</div>`:'<div class="empty">Ничего не найдено. Попробуйте другой запрос.</div>'}</section>`}function render({ resetScroll = false } = {}){const savedScrollY=window.scrollY;const currentRoute=location.hash;active=decodeURIComponent(location.hash.slice(1))||'home';const current=page(active);if(current){if(sims4Groups.includes(current.group)||current.group==='Семья')expandedGroups.add('The Sims 4');else if(current.id==='sims4')expandedGroups.add('The Sims 4');else if(current.id==='inzoi')expandedGroups.add('inZOI');else if(current.id==='sims3')expandedGroups.add('The Sims 3');}drawNav();if(active.startsWith('search='))searchView(active.slice(7));else if(active==='home')home();else if(active==='sims4')sims4Home();else if(active.startsWith('article/'))articlePage(decodeURIComponent(active.slice(8)));else if(active.startsWith('city/'))cityPage(decodeURIComponent(active.slice(5)));else{const p=page(active);p?details(p):home()}if(resetScroll){
