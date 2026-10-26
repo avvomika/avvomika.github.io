@@ -23,6 +23,46 @@ function updateCityCatalog(){
  }
  data.catalogVersion=2;
 }
+
+// Recover "Начало истории" without replacing the user's other articles or photos.
+// Prefer an existing published chapter; otherwise move local legacy dynasty blocks;
+// finally fall back to the exact saved 21-block chapter.
+const AVV_STORY_ID='sims-stories-chapter-beginning';
+const AVV_STORY_PARENT='article/'+AVV_STORY_ID;
+let avvStoryRecovered=false;
+function avvEnsureArchivedChapter(target,published){
+ if(!target||!Array.isArray(target.pages))return false;
+ target.articles ||= [];target.blocks ||= [];target.familyTrees ||= {};
+ if(target.avvStoryRescueDismissed)return false;
+ const archived=window.AVVOMIKA_STORY_BACKUP;
+ const liveArticle=(published?.articles||[]).find(a=>a.id===AVV_STORY_ID);
+ const liveBlocks=(published?.blocks||[]).filter(b=>b.parent===AVV_STORY_PARENT);
+ const legacy=target.blocks.filter(b=>b.parent==='all-families'&&/^dynasty-(text|image)$/.test(b.kind||''));
+ const hasOwnArticle=target.articles.some(a=>a.id===AVV_STORY_ID);
+ const ownBlocks=target.blocks.filter(b=>b.parent===AVV_STORY_PARENT);
+ let source=null, useLegacy=false;
+ if(liveArticle && liveBlocks.length)source={article:liveArticle,blocks:liveBlocks,trees:published?.familyTrees?.['all-families']};
+ else if(legacy.length && archived?.article){
+  const intro=target.pages.find(p=>p.id==='all-families')?.body;
+  source={article:{...archived.article,body:intro||archived.article.body},blocks:legacy,trees:archived.trees};
+  useLegacy=true;
+ }else if(archived?.article&&archived.blocks?.length)source=archived;
+ if(!source)return false;
+ let changed=false;
+ if(!hasOwnArticle){target.articles.push(JSON.parse(JSON.stringify(source.article)));changed=true;}
+ // Never replace user-modified story blocks or revive intentionally removed
+ // individual blocks. Only recover when the entire chapter is empty.
+ if(ownBlocks.length===0){
+  if(useLegacy){for(const b of legacy)b.parent=AVV_STORY_PARENT;changed=true;}
+  else {for(const b of source.blocks){target.blocks.push(JSON.parse(JSON.stringify(b)));changed=true;}}
+ }
+ if(!target.familyTrees['all-families']&&source.trees){
+  target.familyTrees['all-families']=JSON.parse(JSON.stringify(source.trees));changed=true;
+ }
+ if(changed){avvStoryRecovered=true;target.avvStoryRescueApplied=true;}
+ return changed;
+}
+
 const ownerMode=location.protocol==='file:' || new URLSearchParams(location.search).get('edit')==='1';document.body.classList.toggle('public-view',!ownerMode);
 let data,active='home';const app=document.querySelector('#app'),nav=document.querySelector('#nav');const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const page=id=>data.pages.find(p=>p.id===id);const card=(p)=>`<button class="card" data-go="${esc(p.id)}"><span class="card-icon">${esc((sims4Groups.includes(p.group)||p.group==='Семья'||p.id==='sims4')?'♢':p.icon)}</span><h3>${esc(p.title)}</h3><p>${esc(p.body.split('\n')[0].slice(0,125))}</p><span class="arrow">Подробнее ↗</span></button>`;const worldMenuOrder=['all-families','families','other-families','characters'];
 const worldMenuTitles={'all-families':'Династия Sims Stories','families':'Двадцатка влиятельных семей','other-families':'Семьи Sims Stories','characters':'Персонажи'};
@@ -220,7 +260,7 @@ function searchView(q){const entries=(data.entries||[]).filter(x=>(x.title+' '+x
   setTimeout(()=>URL.revokeObjectURL(url), 1000);
 }
 document.querySelector('#export').onclick=exportAllData;
-document.querySelector('#exportAll').onclick=exportAllData;document.querySelector('#import').onchange=async e=>{try{const d=JSON.parse(await e.target.files[0].text());if(!Array.isArray(d.pages))throw Error('Неверный формат');data=d;data.entries ||= [];data.subsections ||= [];data.cityDetails ||= {};data.blocks ||= [];data.articles ||= [];data.familyTrees ||= {};normalizeData();localStorage.setItem('sims-data',JSON.stringify(data));dialog.close();render();alert('Данные импортированы')}catch(err){alert('Не удалось импортировать файл: '+err.message)}};window.addEventListener('hashchange',()=>render({resetScroll:true}));async function initializeSite(){try { let d=JSON.parse(document.querySelector('#site-data').textContent); if(location.protocol==='http:'||location.protocol==='https:'){const response=await fetch('data.json',{cache:'no-store'});if(!response.ok)throw new Error('Не удалось загрузить файл data.json ('+response.status+')');d=await response.json();}const draft=ownerMode?JSON.parse(localStorage.getItem('sims-data')||'null'):null; data=draft||d;data.entries ||= [];data.subsections ||= [];data.cityDetails ||= {};data.blocks ||= [];data.articles ||= [];data.familyTrees ||= {};data.homeDescription ||= 'Sims Stories — энциклопедия авторской вселенной The Sims 4. Судьбы персонажей, семейные хроники, тайны и события мира, который продолжает меняться.';if(!data.pages.some(p=>p.id==='fairies'))data.pages.push({id:'fairies',title:'Феи',group:'Сверхъестественное',icon:'✿',body:'Официальная информация The Sims 4, модификации, лор Sims Stories и известные представители.'}); if(!data.pages.some(p=>p.id==='all-families')){const old=data;data=d;data.entries=old.entries||[];data.subsections=old.subsections||[];data.cityDetails=old.cityDetails||{};data.blocks=old.blocks||[];data.articles=old.articles||[];data.homeDescription=old.homeDescription||d.homeDescription;for(const np of data.pages){const op=old.pages.find(p=>p.id===np.id);if(op && !['families'].includes(np.id)){np.body=op.body;if(op.title!=='Летопись обновлений')np.title=op.title}}}const fp=data.pages.find(p=>p.id==='families');if(fp){fp.title=d.pages.find(p=>p.id==='families').title;fp.body=d.pages.find(p=>p.id==='families').body;fp.icon='✧'}data.families=data.families.map(f=>f==='Лоран'?'Лаурен':f);normalizeData(); if(ownerMode&&draft){try{localStorage.setItem('sims-data',JSON.stringify(data))}catch(e){console.warn('Черновик слишком большой для сохранения',e)}} const updates=data.pages.find(p=>p.id==='updates');if(updates&&updates.title==='Летопись обновлений')updates.title='Дневник';render(); } catch(err) { app.innerHTML='<p class="empty">Ошибка загрузки данных: '+esc(err.message)+'</p>'; }}
+document.querySelector('#exportAll').onclick=exportAllData;document.querySelector('#import').onchange=async e=>{try{const d=JSON.parse(await e.target.files[0].text());if(!Array.isArray(d.pages))throw Error('Неверный формат');data=d;data.entries ||= [];data.subsections ||= [];data.cityDetails ||= {};data.blocks ||= [];data.articles ||= [];data.familyTrees ||= {};normalizeData();localStorage.setItem('sims-data',JSON.stringify(data));dialog.close();render();alert('Данные импортированы')}catch(err){alert('Не удалось импортировать файл: '+err.message)}};window.addEventListener('hashchange',()=>render({resetScroll:true}));async function initializeSite(){try { let d=JSON.parse(document.querySelector('#site-data').textContent); if(location.protocol==='http:'||location.protocol==='https:'){const response=await fetch('data.json',{cache:'no-store'});if(!response.ok)throw new Error('Не удалось загрузить файл data.json ('+response.status+')');d=await response.json();}const draft=ownerMode?JSON.parse(localStorage.getItem('sims-data')||'null'):null; data=draft||d;avvEnsureArchivedChapter(data,d);data.entries ||= [];data.subsections ||= [];data.cityDetails ||= {};data.blocks ||= [];data.articles ||= [];data.familyTrees ||= {};data.homeDescription ||= 'Sims Stories — энциклопедия авторской вселенной The Sims 4. Судьбы персонажей, семейные хроники, тайны и события мира, который продолжает меняться.';if(!data.pages.some(p=>p.id==='fairies'))data.pages.push({id:'fairies',title:'Феи',group:'Сверхъестественное',icon:'✿',body:'Официальная информация The Sims 4, модификации, лор Sims Stories и известные представители.'}); if(!data.pages.some(p=>p.id==='all-families')){const old=data;data=d;data.entries=old.entries||[];data.subsections=old.subsections||[];data.cityDetails=old.cityDetails||{};data.blocks=old.blocks||[];data.articles=old.articles||[];data.homeDescription=old.homeDescription||d.homeDescription;for(const np of data.pages){const op=old.pages.find(p=>p.id===np.id);if(op && !['families'].includes(np.id)){np.body=op.body;if(op.title!=='Летопись обновлений')np.title=op.title}}}const fp=data.pages.find(p=>p.id==='families');if(fp){fp.title=d.pages.find(p=>p.id==='families').title;fp.body=d.pages.find(p=>p.id==='families').body;fp.icon='✧'}data.families=data.families.map(f=>f==='Лоран'?'Лаурен':f);normalizeData(); if(ownerMode&&draft){try{localStorage.setItem('sims-data',JSON.stringify(data))}catch(e){console.warn('Черновик слишком большой для сохранения',e)}} const updates=data.pages.find(p=>p.id==='updates');if(updates&&updates.title==='Летопись обновлений')updates.title='Дневник';render(); } catch(err) { app.innerHTML='<p class="empty">Ошибка загрузки данных: '+esc(err.message)+'</p>'; }}
 initializeSite();
 
 function openCitiesEditor(){
@@ -596,7 +636,7 @@ window.avvSyncBridge = {
     data = JSON.parse(JSON.stringify(next));
     try {
       data.entries ||= []; data.subsections ||= []; data.cityDetails ||= {}; data.blocks ||= [];
-      data.articles ||= []; data.familyTrees ||= {}; normalizeData();
+      data.articles ||= []; data.familyTrees ||= {}; avvEnsureArchivedChapter(data,null);normalizeData();
       localStorage.setItem('sims-data', JSON.stringify(data));
       render();
     } catch (e) {data = prior; throw e;}
